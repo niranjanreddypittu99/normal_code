@@ -1,0 +1,117 @@
+# import fitz
+# ### READ IN PDF
+# text = input('Enter the required text:')
+# doc = fitz.open("inv.pdf")
+# matches_found = []
+# for page in doc:
+#     ### SEARCH
+#     # text = "Date"
+#     text_instances = page.search_for(text)
+#     ### HIGHLIGHT
+#     for inst in text_instances:
+#         matches_found.append(text_instances)
+#         highlight = page.add_highlight_annot(inst)
+#         highlight.update()
+# print(len(matches_found))
+# ### OUTPUT
+# f = doc.save("inv1.pdf", garbage=4, deflate=True, clean=True)
+#
+#
+#
+# from pdf2jpg import pdf2jpg
+# inputpath = r"inv1.pdf"
+# outputpath = r""
+# result = pdf2jpg.convert_pdf2jpg(inputpath,outputpath, pages="ALL")
+
+# # How to get roi bounding box coordinates with mouse clicks instead of guess & check
+# import cv2
+#
+# class BoundingBoxWidget(object):
+#     def __init__(self):
+#         self.original_image = cv2.imread(r'C:\Users\Niranjan Reddy\PycharmProjects\pythonProject3\venv\inv1.pdf_dir\0_inv1.pdf.jpg')
+#         self.clone = self.original_image.copy()
+#
+#         cv2.namedWindow('image',cv2.WINDOW_NORMAL)
+#         cv2.setMouseCallback('image', self.extract_coordinates)
+#
+#         # Bounding box reference points
+#         self.image_coordinates = []
+#
+#     def extract_coordinates(self, event, x, y, flags, parameters):
+#         # Record starting (x,y) coordinates on left mouse button click
+#         if event == cv2.EVENT_LBUTTONDOWN:
+#             self.image_coordinates = [(x,y)]
+#
+#         # Record ending (x,y) coordintes on left mouse button release
+#         elif event == cv2.EVENT_LBUTTONUP:
+#             self.image_coordinates.append((x,y))
+#             print('top left: {}, bottom right: {}'.format(self.image_coordinates[0], self.image_coordinates[1]))
+#             print('x,y,w,h : ({}, {}, {}, {})'.format(self.image_coordinates[0][0], self.image_coordinates[0][1], self.image_coordinates[1][0] - self.image_coordinates[0][0], self.image_coordinates[1][1] - self.image_coordinates[0][1]))
+#
+#             # Draw rectangle
+#             cv2.rectangle(self.clone, self.image_coordinates[0], self.image_coordinates[1], (36,255,12), 2)
+#             cv2.imshow("image", self.clone)
+#
+#         # Clear drawing boxes on right mouse button click
+#         elif event == cv2.EVENT_RBUTTONDOWN:
+#             self.clone = self.original_image.copy()
+#
+#     def show_image(self):
+#         return self.clone
+#
+# if __name__ == '__main__':
+#     boundingbox_widget = BoundingBoxWidget()
+#     while True:
+#         cv2.imshow('image', boundingbox_widget.show_image())
+#         key = cv2.waitKey(1)
+#
+#         # Close program with keyboard 'q'
+#         if key == ord('q'):
+#             cv2.destroyAllWindows()
+#             exit(1)
+
+
+# import cv2
+# cv2.namedWindow("output", cv2.WINDOW_NORMAL)    # Create window with freedom of dimensions
+# im = cv2.imread(r"C:\Users\Niranjan Reddy\PycharmProjects\pythonProject3\venv\inv1.pdf_dir\0_inv1.pdf.jpg")                    # Read image
+# imS = cv2.resize(im, (2480, 3508))                # Resize image
+# cv2.imshow("output", imS)                       # Show image
+# cv2.waitKey(0)
+
+
+
+# How to highlight part of image With Python Imaging Library(PIL)
+from PIL import Image, ImageColor, ImageDraw, ImageEnhance
+def highlight_area(img, region, factor, outline_color=None, outline_width=1):
+    """ Highlight specified rectangular region of image by `factor` with an
+        optional colored  boarder drawn around its edges and return the result.
+    """
+    img = img.copy()  # Avoid changing original image.
+    img_crop = img.crop(region)
+
+    brightner = ImageEnhance.Brightness(img_crop)
+    img_crop = brightner.enhance(factor)
+
+    img.paste(img_crop, region)
+
+    # Optionally draw a colored outline around the edge of the rectangular region.
+    if outline_color:
+        draw = ImageDraw.Draw(img)  # Create a drawing context.
+        left, upper, right, lower = region  # Get bounds.
+        coords = [(left, upper), (right, upper), (right, lower), (left, lower),
+                  (left, upper)]
+        draw.line(coords, fill=outline_color, width=outline_width)
+
+    return img
+
+
+if __name__ == '__main__':
+
+    img = Image.open(r'C:\Users\Niranjan Reddy\PycharmProjects\pythonProject3\venv\inv1.pdf_dir\0_inv1.pdf.jpg')
+
+    red = ImageColor.getrgb('red')
+    cpu_socket_region = 189, 1305, 536, 1840
+    img2 = highlight_area(img, cpu_socket_region, 2.5, outline_color=red, outline_width=2)
+
+    img2.save('motherboard_with_cpu_socket_highlighted.jpg')
+    img2.show()  # Display the result.
