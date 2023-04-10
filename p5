@@ -1,35 +1,62 @@
-# How to highlight part of image With Python Imaging Library(PIL)
-from PIL import Image, ImageColor, ImageDraw, ImageEnhance
-def highlight_area(img, region, factor, outline_color=None, outline_width=1):
-    """ Highlight specified rectangular region of image by `factor` with an
-        optional colored  boarder drawn around its edges and return the result.
-    """
-    img = img.copy()  # Avoid changing original image.
-    img_crop = img.crop(region)
+# How to get roi bounding box coordinates with mouse clicks instead of guess & check
+path = r'C:\Users\Niranjan Reddy\Downloads\in.png'
+import cv2
+l1 = []
+class BoundingBoxWidget(object):
+    def __init__(self):
+        # self.original_image = cv2.imread(r'C:\Users\Niranjan Reddy\Downloads\inv.png')
+        self.original_image = cv2.imread(path)
+        self.clone = self.original_image.copy()
+        cv2.namedWindow('image',cv2.WINDOW_NORMAL)
+        cv2.setMouseCallback('image', self.extract_coordinates)
+        # Bounding box reference points
+        self.image_coordinates = []
+    def extract_coordinates(self, event, x, y, flags, parameters):
+        # Record starting (x,y) coordinates on left mouse button click
+        if event == cv2.EVENT_LBUTTONDOWN:
+            self.image_coordinates = [(x,y)]
+        # Record ending (x,y) coordintes on left mouse button release
+        elif event == cv2.EVENT_LBUTTONUP:
+            self.image_coordinates.append((x,y))
+            l1.append(self.image_coordinates[0])
+            print(l1)
+            # print('top left: {}, bottom right: {}'.format(self.image_coordinates[0], self.image_coordinates[1]))
 
-    brightner = ImageEnhance.Brightness(img_crop)
-    img_crop = brightner.enhance(factor)
-
-    img.paste(img_crop, region)
-
-    # Optionally draw a colored outline around the edge of the rectangular region.
-    if outline_color:
-        draw = ImageDraw.Draw(img)  # Create a drawing context.
-        left, upper, right, lower = region  # Get bounds.
-        coords = [(left, upper), (right, upper), (right, lower), (left, lower),
-                  (left, upper)]
-        draw.line(coords, fill=outline_color, width=outline_width)
-
-    return img
-
-
+            # print('x,y,w,h : ({}, {}, {}, {})'.format(self.image_coordinates[0][0],self.image_coordinates[0][1],self.image_coordinates[1][0],self.image_coordinates[1][1]))
+            # Draw rectangle
+            cv2.rectangle(self.clone, self.image_coordinates[0], self.image_coordinates[1], (36,255,12), 2)
+            cv2.imshow("image", self.clone)
+        # Clear drawing boxes on right mouse button click
+        elif event == cv2.EVENT_RBUTTONDOWN:
+            self.clone = self.original_image.copy()
+    def show_image(self):
+        return self.clone
 if __name__ == '__main__':
+    boundingbox_widget = BoundingBoxWidget()
+    cv2.imshow('image', boundingbox_widget.show_image())
+    key = cv2.waitKey(0)
 
-    img = Image.open(r'C:\Users\Niranjan Reddy\PycharmProjects\pythonProject3\venv\inv1.pdf_dir\0_inv1.pdf.jpg')
 
-    red = ImageColor.getrgb('red')
-    cpu_socket_region = 189, 1305, 536, 1840
-    img2 = highlight_area(img, cpu_socket_region, 2.5, outline_color=red, outline_width=2)
 
-    img2.save('motherboard_with_cpu_socket_highlighted.jpg')
-    img2.show()  # Display the result.
+from PIL import Image
+img = Image.open(path)
+left = l1[0][0]
+top = l1[0][1]
+right = l1[1][0]
+bottom = l1[1][1]
+im1 = img.crop((left, top, right, bottom))
+t = im1.save('save.png')
+
+
+import pyautogui
+pyautogui.sleep(5)
+
+
+from PIL import Image
+from pytesseract import pytesseract
+path_to_tesseract = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+path_to_images = r'C:\Users\Niranjan Reddy\PycharmProjects\pythonProject3\venv\save.png'
+pytesseract.tesseract_cmd = path_to_tesseract
+img = Image.open(path_to_images)
+text = pytesseract.image_to_string(img)
+print(text)
