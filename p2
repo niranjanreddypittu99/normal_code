@@ -1,0 +1,112 @@
+l1 = '''3m health care Invoice
+Bill To- H1 Retail Invoice number 2001521
+united states Date 12/2/2022
+Po number 7111
+Description Quantity Unit Price Amount
+rontend design restructure 3 $9,999.00 $9,999.00
+Custom icon package 4 $975.00 $1,950.00
+Gandhi mouse pad 5 $99.00 $297.00
+design restructure 7 $1,800.00 $18,000.00
+Total $1,234.00
+Description
+rontend design restructure
+Custom icon package
+Gandhi mouse pad
+design restructure
+Quantity
+3
+4
+5
+7
+Unit Price
+$9,999.00
+$975.00
+$99.00
+$1,800.00
+Amount
+$9,999.00
+$1,950.00
+$297.00
+$18,000.00'''
+print(l1[50:64])
+# l = []
+# my_list1 = [['rontend design restructure','Custom icon package','Gandhi mouse pad','design restructure'],['3','4','5'],['$9,999.00','$975.00','$99.00','$1,800.00'],['$9,999.00','$1,950.00','$297.00','$18,000.00']]
+# for i in range(len(my_list1)):
+#     l.append('\n'.join(my_list1[i]))
+# print(l)
+#
+# s = []
+# for j in range(len(l)):
+#     d = l1.find(l[j])
+#     start = d
+#     length = len(l[j])
+#     end = start+length
+#     s.append((start,end))
+# print(s)
+
+# my_list = ['rontend design restructure','Custom icon package','Gandhi mouse pad','design restructure']
+# result = '\n'.join(my_list)
+# print(result)
+# s = l1.find(result)
+# start = s
+# length = len(result)
+# end = length+start
+# print(start,end)
+# print(s)
+# print(l1[328:410])
+
+# import spacy
+# from spacy.matcher import PhraseMatcher
+# nlp = spacy.blank('en')
+# matcher = PhraseMatcher(nlp.vocab)
+
+# # long_list = ['''Description
+# # rontend design restructure
+# # Custom icon package
+# # Gandhi mouse pad
+# # design restructure''','''Quantity
+# # 3
+# # 4
+# # 5
+# # 7''']
+# patterns = [nlp(lang) for lang in l]
+# matcher.add('PROGRAMMING_LANGUAGE',patterns)
+# doc = nlp(l1)
+# matches = matcher(doc)
+# l = []
+# for match_id, start, end in matches:
+#     span = doc[start:end]
+#     print(span.text)
+#     l.append((start,end))
+#     # print(span.label_)
+#
+# print(l)
+
+
+
+
+import spacy
+from spacy.matcher import Matcher
+nlp = spacy.blank('en')
+matcher = Matcher(nlp.vocab)
+pattern =[[{'LOWER':'number'},{"LENGTH":{'>=':6}}],[{'LOWER':'number'},{"LENGTH":{'==':4}}],[{'TEXT':{'REGEX':r'^\d{1,2}/\d{1,2}/\d{2}(?:\d{2})?$'}}],[{"LOWER": 'total'},{'ORTH':'$'},{'LIKE_NUM':True}]]
+matcher.add('CITIES', [*pattern])
+doc = nlp(l1)
+matches = matcher(doc)
+a = []
+for match_id, start, end in matches:
+    span = doc[start:end]
+    print(span.text)
+    print(start,end)
+    a.append(span.text)
+print(a)
+print('--------------')
+s = []
+for i in range(len(a)):
+    d = l1.find(a[i])
+    start = d
+    length = len(a[i])
+    end = start + length
+    s.append((start, end))
+print(s)
+
